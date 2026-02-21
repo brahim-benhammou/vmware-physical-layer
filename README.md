@@ -238,7 +238,7 @@ Automated deployment pipelines
 
 Brahim Benhammou
 
-VMware Infrastructure and Platform Engineering Focus
+VMware Infrastructure Dev-Ops Engineering Focus
 
 ---
 
