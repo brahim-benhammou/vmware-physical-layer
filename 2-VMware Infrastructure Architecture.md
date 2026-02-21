@@ -39,6 +39,17 @@ Provide a stable foundation for testing infrastructure automation, high availabi
 | **Active Directory** | 10.10.10.10 | ad-01.lab.local | Identity & DNS  |
 | **vCenter Server** | 10.10.10.20 | vcenter.lab.local | Infrastructure Management |
 
+## 5. Storage Architecture
+
+The workload cluster uses VMware vSAN to provide centralized shared storage across the hosts.
+
+Each workload host is equipped with four 1TB drives configured in JBOD mode with no hardware RAID, allowing direct disk access for vSAN disk groups and accurate health monitoring.
+
+This design enables distributed software defined storage providing data redundancy, high availability, and improved performance for virtual machine workloads.
+
+Storage traffic is isolated on VLAN 30 using dedicated 10Gb networking to ensure low latency and high throughput.
+
+
 ---
 
 ## 4. Reliability Strategy
