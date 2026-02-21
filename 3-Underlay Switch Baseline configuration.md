@@ -1,21 +1,27 @@
-
-# Underlay Switch Baseline 
+# Underlay Switch Baseline
 
 ## Purpose
-Layer 3 underlay configuration for a segmented VMware lab using 802.1Q trunks.
-- R640 hosts carry all VLANs 
-- R630 management plane host carries only Management + VM Network + DevOps Tools
+
+Layer 3 underlay configuration for a segmented VMware lab environment using 802.1Q trunking.
+
+* R640 workload hosts carry all VLANs
+* R630 management plane host carries only Management, VM Network, and DevOps VLANs
 
 ---
 
 ## VLAN Plan
-VLAN 10   MANAGEMENT
-VLAN 20   VMOTION
-VLAN 30   VSAN
-VLAN 100  VM_NETWORK
-VLAN 110  DEVOPS
+
+* VLAN 10 — Management
+* VLAN 20 — vMotion
+* VLAN 30 — vSAN
+* VLAN 100 — VM Network
+* VLAN 110 — DevOps
+
+---
 
 ## VLAN Creation
+
+```bash
 conf t
  vlan 10
   name MANAGEMENT
@@ -29,14 +35,18 @@ conf t
   name DEVOPS
 end
 write memory
+```
 
 ---
 
-## R640 ESXi Workload Hosts (10Gb SFP+) - Trunk ALL VLANs
-Assumptions:
-Te3/1/1 = R640 Host 01 (10Gb)
-Te3/1/2 = R640 Host 02 (10Gb)
+## R640 ESXi Workload Hosts (10Gb SFP+) — Trunk All VLANs
 
+**Assumptions**
+
+* Te3/1/1 = R640 Host 01 (10Gb)
+* Te3/1/2 = R640 Host 02 (10Gb)
+
+```bash
 conf t
  interface TenGigabitEthernet3/1/1
   description R640-HOST-01-10GB
@@ -57,15 +67,18 @@ conf t
   no shutdown
 end
 write memory
+```
 
 ---
 
-## R630 Management Plane Host - Trunk LIMITED VLANs (10, 100, 110)
-R630 role:
-- Management plane / core services host (vCenter,opnsense_firewall, AD,DNS )
-- NOT used for workload VM placement, vMotion, or vSAN data traffic
+## R630 Management Plane Host — Limited VLAN Trunk
 
+**Role**
 
+* Management plane and core services host
+* Not used for workload placement, vMotion, or vSAN traffic
+
+```bash
 conf t
  interface GigabitEthernet3/0/3
   description R630-MGMT-PLANE
@@ -77,13 +90,13 @@ conf t
   no shutdown
 end
 write memory
+```
 
 ---
 
-## Management Workstation / Admin PC - Access VLAN 10
-Assumption:
-Gi3/0/5 = Management PC
+## Management Workstation — Access VLAN 10
 
+```bash
 conf t
  interface GigabitEthernet3/0/5
   description MGMT-PC
@@ -94,26 +107,23 @@ conf t
   no shutdown
 end
 write memory
-
-
-## Enable Jumbo Frames (vMotion / vSAN)  to transfer large amounts of data faster with less CPU overhead and lower latency 
-conf t
-system mtu jumbo 9000
-end
-write memory
-reload
-VMware side must also be set to MTU 9000 for:
-- vMotion VMkernel (VLAN 20)
-- vSAN VMkernel (VLAN 30)
+```
 
 ---
 
-## Verification Commands
-show vlan brief
-show interfaces trunk
-show interfaces te3/1/1 switchport
-show interfaces te3/1/2 switchport
-show interfaces gi3/0/3 switchport
-show interfaces gi3/0/24 switchport
-show interfaces status
-show mac address-table dynamic
+## Jumbo Frames
+
+MTU set to 9000 to support high throughput storage and migration traffic, reducing CPU overhead and improving performance.
+
+VMware side must also be configured with MTU 9000 for:
+
+* vMotion VMkernel (VLAN 20)
+* vSAN VMkernel (VLAN 30)
+
+```bash
+conf t
+ system mtu jumbo 9000
+end
+write memory
+re
+```
